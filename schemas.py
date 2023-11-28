@@ -21,6 +21,20 @@ class SignUp(BaseModel):
         }
 
 
+class UserResponse(BaseModel):
+    username: str
+    email: str
+    is_staff: Optional[bool] = False
+    is_active: Optional[bool] = False
+
+    class Config:
+        orm_mode = True
+        json_schema_extra = {
+            'username': 'intigam',
+            'email': 'intigam@gmail.com',
+            'is_staff': False,
+            'is_active': True
+        }
 class Settings(BaseModel):
     authjwt_secret_key: str = '1f4c878dca6ca65c03d18005563e29ad52fe2c6c263a6696646b90bc975b2927'
 

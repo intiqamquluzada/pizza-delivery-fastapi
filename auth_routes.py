@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import Session, engine
-from schemas import SignUp, LoginModel
+from schemas import SignUp, LoginModel, UserResponse
 from models import User
 from fastapi_jwt_auth import AuthJWT
 from fastapi.encoders import jsonable_encoder
@@ -12,6 +12,15 @@ auth_router = APIRouter(
 )
 
 session = Session(bind=engine)
+
+
+@auth_router.get("/list-users/")
+async def get_user():
+    db = session
+    users = db.query(User).all()
+    user_data = [{"username": user.username, "email": user.email, "is_active": user.is_active, "is_staff": user.is_staff} for user in users]
+
+    return user_data
 
 
 @auth_router.get('/')
