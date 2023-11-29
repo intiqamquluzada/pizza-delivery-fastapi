@@ -18,8 +18,7 @@ session = Session(bind=engine)
 async def get_user():
     db = session
     users = db.query(User).all()
-    user_data = [{"username": user.username, "email": user.email, "is_active": user.is_active, "is_staff": user.is_staff} for user in users]
-
+    user_data = [{"username": user.username,"id":user.id, "email": user.email, "is_active": user.is_active, "is_staff": user.is_staff} for user in users]
     return user_data
 
 
@@ -76,3 +75,20 @@ async def login(user: LoginModel, Authorize: AuthJWT = Depends()):
         return jsonable_encoder(response)
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                         detail="Invalid username or password")
+
+
+@auth_router.get('/refresh')
+async def refresh_token(Authorize: AuthJWT = Depends()):
+    try:
+        Authorize.jwt_refresh_token_required()
+
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Please provide a valid refresh token"
+                            )
+
+    current_user = Authorize.get_jwt_subject()
+
+    access_token = Authorize.create_access_token(subject=current_user)
+
+    return jsonable_encoder({"access": access_token})
